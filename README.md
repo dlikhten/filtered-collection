@@ -35,3 +35,4 @@ must reset the filter by invoking:
 
 Same goes for remove and reset.
 
+To clear the filtering completely, pass the value false to setFilter.

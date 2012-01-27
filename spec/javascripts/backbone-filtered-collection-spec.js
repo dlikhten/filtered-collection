@@ -47,6 +47,17 @@ describe("Backbone.FilteredCollection", function() {
       expect(collection.length).toEqual(2);
       expect(collection.at(0).get('value')).toEqual(8);
     });
+
+    it("should take a false filter as a return to no filter", function() {
+      collection.setFilter(createLessthanFilter(5));
+      expect(collection.length).toEqual(5);
+      collection.setFilter(undefined); // no change
+      expect(collection.length).toEqual(5);
+      collection.setFilter(null); // no change
+      expect(collection.length).toEqual(5);
+      collection.setFilter(false); // filter reset
+      expect(collection.length).toEqual(10);
+    });
   });
 
   describe("event:add", function() {

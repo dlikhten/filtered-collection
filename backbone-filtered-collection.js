@@ -1,16 +1,17 @@
 (function(Backbone) {
+  var defaultFilter = function() {return true;};
   /**
    * This represents a filtered collection. You can either pass a filter or
    * invoke setFilter(filter) to give a filter. The filter is identical to
    * that which is used for _.select(array, filter)
    *
-   * null filter indicates no filtering.
+   * false filter indicates no filtering.
    *
    * do not modify this collection directly via #add/#remove, modify the
    * underlying origModel.
    */
   Backbone.FilteredCollection = Backbone.Collection.extend({
-    defaultFilter: function() {return true;},
+    defaultFilter: defaultFilter,
     filter: null,
     origModel: null,
     model: null,
@@ -38,6 +39,7 @@
     },
 
     setFilter: function(newFilter) {
+      if (newFilter === false) { newFilter = defaultFilter } // false = clear out filter
       this.filter = newFilter || this.filter || this.defaultFilter;
       console.log(this.filter);
       var filtered = this.origModel.filter(this.filter, this);
