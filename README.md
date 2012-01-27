@@ -6,6 +6,15 @@ given a filter function, will just contain elements of the original
 which pass the filter. Supports add/remove/reset events of the original
 to modify the filtered version.
 
+# Why not just extend backbone?
+
+The main reason I did not just extend backbone is because by extending
+it, you shove all behaviors into one model, making it a
+jack-of-all-trades and potentially conflicting with behaviors of other
+extentions, not to mention making normal operaitons potentially slower.
+So the intention is to compose a Chain of Responsibility pattern using
+these guys.
+
 # Usage
 
     var YourCollection = Backbone.Collection.extend({model: YourModel});
