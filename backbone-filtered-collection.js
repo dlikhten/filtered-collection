@@ -32,38 +32,35 @@ SOFTWARE.
    * underlying origModel.
    */
   Backbone.FilteredCollection = Backbone.Collection.extend({
-    defaultFilter: defaultFilter,
-    filter: null,
-    origModel: null,
-    model: null,
+    collectionFilter: null,
+    defaultFilter: defaultFilter
 
-    initialize: function(data) {
-      this.origModel = data.origModel;
+    ,initialize: function(data) {
+      this.collection = data.collection;
+      this.collectionFilter = data.collectionFilter;
 
-      var origModel = this.origModel;
       // has to be done like this to properly handle insertions in middle...
-      origModel.bind("add", this.resetOrigModel, this);
+      this.collection.bind("add", this.resetCollection, this);
 
       // this can be optimized
-      origModel.bind("remove", this.removeModel, this);
+      this.collection.bind("remove", this.removeModel, this);
 
-      origModel.bind("reset", this.resetOrigModel, this);
-      this.setFilter(data.filter);
-    },
+      this.collection.bind("reset", this.resetCollection, this);
+      this.setFilter(this.collectionFilter);
+    }
 
-    resetOrigModel: function() {
+    ,resetCollection: function() {
       this.setFilter();
-    },
+    }
 
-    removeModel: function(removed) {
+    ,removeModel: function(removed) {
       this.remove(removed);
-    },
+    }
 
-    setFilter: function(newFilter) {
-      if (newFilter === false) { newFilter = defaultFilter } // false = clear out filter
-      this.filter = newFilter || this.filter || this.defaultFilter;
-      console.log(this.filter);
-      var filtered = this.origModel.filter(this.filter, this);
+    ,setFilter: function(newFilter) {
+      if (newFilter === false) { newFilter = this.defaultFilter } // false = clear out filter
+      this.collectionFilter = newFilter || this.collectionFilter || this.defaultFilter;
+      var filtered = this.collection.filter(this.collectionFilter, this);
       this.reset(filtered);
     }
   });

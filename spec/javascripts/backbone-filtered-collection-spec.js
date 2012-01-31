@@ -26,7 +26,7 @@ describe("Backbone.FilteredCollection", function() {
       allModels.add(new TehModel({value: i}));
     }
 
-    collection = new ModelCollection({origModel: allModels});
+    collection = new ModelCollection({collection: allModels});
   });
 
   describe("#setFilter", function() {
