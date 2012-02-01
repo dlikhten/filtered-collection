@@ -40,12 +40,12 @@ SOFTWARE.
       this.collectionFilter = data.collectionFilter;
 
       // has to be done like this to properly handle insertions in middle...
-      this.collection.bind("add", this.resetCollection, this);
+      this.collection.on("add", this.resetCollection, this);
 
       // this can be optimized
-      this.collection.bind("remove", this.removeModel, this);
+      this.collection.on("remove", this.removeModel, this);
 
-      this.collection.bind("reset", this.resetCollection, this);
+      this.collection.on("reset", this.resetCollection, this);
       this.setFilter(this.collectionFilter);
     }
 
