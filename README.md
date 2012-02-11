@@ -12,7 +12,7 @@ The main reason I did not just extend backbone is because by extending
 it, you shove all behaviors into one model, making it a
 jack-of-all-trades and potentially conflicting with behaviors of other
 extentions, not to mention making normal operaitons potentially slower.
-So the intention is to compose a Chain of Responsibility pattern using
+So the intention is to compose a filter chain pattern using
 these guys.
 
 # Usage
