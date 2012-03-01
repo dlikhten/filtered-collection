@@ -12,7 +12,7 @@ The main reason I did not just extend backbone is because by extending
 it, you shove all behaviors into one model, making it a
 jack-of-all-trades and potentially conflicting with behaviors of other
 extentions, not to mention making normal operaitons potentially slower.
-So the intention is to compose a Chain of Responsibility pattern using
+So the intention is to compose a filter chain pattern using
 these guys.
 
 # Usage
@@ -20,7 +20,7 @@ these guys.
     var YourCollection = Backbone.Collection.extend({model: YourModel});
     var YourFilteredCollection = Backbone.FilteredCollection.extend({model: YourModel});
     var allItems = new YourCollection(...);
-    var filteredItems = new YourFilteredCollection({origModel: allItems});
+    var filteredItems = new YourFilteredCollection({collection: allItems});
     var filteredItems.setFilter(function(item) { return item.get('included') == true;});
 
 And now filteredItems contains only those items that pass the filter.
