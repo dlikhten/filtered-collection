@@ -66,7 +66,6 @@ SOFTWARE.
     ,addModel: function(added, collection, options) {
       if (this.collectionFilter(added)) {
         var desiredIndex = options.index;
-        console.log("desired:", desiredIndex);
         // determine where to add, look at mapping and find first object with the index
         // great than the one that we are given
         var addToIndex = _.sortedIndex(this._mapping, desiredIndex, function(origIndex) {
