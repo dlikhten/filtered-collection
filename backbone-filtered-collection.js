@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-(function(Backbone) {
+(function(_, Backbone) {
   var defaultFilter = function() {return true;};
   /**
    * This represents a filtered collection. You can either pass a filter or
@@ -32,20 +32,22 @@ SOFTWARE.
    * underlying origModel.
    */
   Backbone.FilteredCollection = Backbone.Collection.extend({
-    collectionFilter: null,
-    defaultFilter: defaultFilter
+    collectionFilter: null
+    ,defaultFilter: defaultFilter
+    ,_mapping: []
 
     ,initialize: function(data) {
       this.collection = data.collection;
       this.collectionFilter = data.collectionFilter;
 
       // has to be done like this to properly handle insertions in middle...
-      this.collection.on("add", this.resetCollection, this);
+      this.collection.on("add", this.addModel, this);
 
       // this can be optimized
       this.collection.on("remove", this.removeModel, this);
 
       this.collection.on("reset", this.resetCollection, this);
+      this.on("remove", this.syncMapping, this);
       this.setFilter(this.collectionFilter);
     }
 
@@ -57,11 +59,38 @@ SOFTWARE.
       this.remove(removed);
     }
 
+    ,syncMapping: function(model, collection, options) {
+      this._mapping.splice(options.index, 1);
+    }
+
+    ,addModel: function(added, collection, options) {
+      if (this.collectionFilter(added)) {
+        var desiredIndex = options.index;
+        console.log("desired:", desiredIndex);
+        // determine where to add, look at mapping and find first object with the index
+        // great than the one that we are given
+        var addToIndex = _.sortedIndex(this._mapping, desiredIndex, function(origIndex) {
+          return origIndex;
+        });
+
+        // add it there
+        this._mapping.splice(addToIndex, 0, options.index);
+        this.add(added, {at: addToIndex});
+      }
+    }
+
     ,setFilter: function(newFilter) {
       if (newFilter === false) { newFilter = this.defaultFilter } // false = clear out filter
       this.collectionFilter = newFilter || this.collectionFilter || this.defaultFilter;
-      var filtered = this.collection.filter(this.collectionFilter, this);
+      this._mapping = [];
+      var filtered = [];
+      this.collection.each(function(model, index) {
+        if (this.collectionFilter(model, index)) {
+          filtered.push(model);
+          this._mapping.push(index);
+        }
+      }, this);
       this.reset(filtered);
     }
   });
-})(Backbone);
+})(_, Backbone);
