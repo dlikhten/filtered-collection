@@ -34,63 +34,105 @@ SOFTWARE.
   Backbone.FilteredCollection = Backbone.Collection.extend({
     collectionFilter: null
     ,defaultFilter: defaultFilter
-    ,_mapping: []
 
-    ,initialize: function(data) {
+    ,initialize: function(models, data) {
+      if (models) throw "models cannot be set directly, unfortunately first argument is the models.";
       this.collection = data.collection;
-      this.collectionFilter = data.collectionFilter;
+      this.setFilter(data.collectionFilter);
 
-      // has to be done like this to properly handle insertions in middle...
-      this.collection.on("add", this.addModel, this);
+      this.collection.on("add",     this.addModel, this);
+      this.collection.on("remove",  this.removeModel, this);
+      this.collection.on("reset",   this.resetCollection, this);
+    }
 
-      // this can be optimized
-      this.collection.on("remove", this.removeModel, this);
+    ,_reset: function(options) {
+      Backbone.Collection.prototype._reset.call(this, options);
+      this._mapping = [];
+    }
 
-      this.collection.on("reset", this.resetCollection, this);
-      this.on("remove", this.syncMapping, this);
-      this.setFilter(this.collectionFilter);
+    ,add: function() {
+      throw "Do not invoke directly";
+    }
+
+    ,remove: function() {
+      throw "Do not invoke directly";
+    }
+
+    ,reset: function() {
+      throw "Do not invoke directly";
     }
 
     ,resetCollection: function() {
-      this.setFilter();
+      this._mapping = [];
+      this._reset();
+      this.setFilter(undefined, {silent: true});
+      this.trigger("reset", this);
     }
 
-    ,removeModel: function(removed) {
-      this.remove(removed);
-    }
-
-    ,syncMapping: function(model, collection, options) {
-      this._mapping.splice(options.index, 1);
-    }
-
-    ,addModel: function(added, collection, options) {
-      if (this.collectionFilter(added)) {
-        var desiredIndex = options.index;
-        console.log("desired:", desiredIndex);
-        // determine where to add, look at mapping and find first object with the index
-        // great than the one that we are given
-        var addToIndex = _.sortedIndex(this._mapping, desiredIndex, function(origIndex) {
-          return origIndex;
-        });
-
-        // add it there
-        this._mapping.splice(addToIndex, 0, options.index);
-        this.add(added, {at: addToIndex});
+    ,removeModel: function(model, colleciton, options) {
+      var at = this._mapping.indexOf(options.index);
+      if (at > -1) {
+        this._forceRemoveModel(model, _.extend({index: at}, options));
       }
     }
 
-    ,setFilter: function(newFilter) {
+    ,_forceRemoveModel: function(model, options) {
+      this._mapping.splice(options.index, 1);
+      Backbone.Collection.prototype.remove.call(this, model, {silent: options.silent});
+    }
+
+    ,addModel: function(model, collection, options) {
+      if (this.collectionFilter(model)) {
+        this._forcedAddModel(model, options);
+      }
+    }
+
+    ,_forcedAddModel: function(model, options) {
+      var desiredIndex = options.index;
+      // determine where to add, look at mapping and find first object with the index
+      // great than the one that we are given
+      var addToIndex = _.sortedIndex(this._mapping, desiredIndex, function(origIndex) {
+        return origIndex;
+      });
+
+      // add it there
+      Backbone.Collection.prototype.add.call(this, model, {at: addToIndex, silent: options.silent});
+      this._mapping.splice(addToIndex, 0, desiredIndex);
+    }
+
+    ,setFilter: function(newFilter, options) {
       if (newFilter === false) { newFilter = this.defaultFilter } // false = clear out filter
       this.collectionFilter = newFilter || this.collectionFilter || this.defaultFilter;
-      this._mapping = [];
-      var filtered = [];
+      options || (options = {});
+
+      // this assumes that the original collection was unmodified
+      // without the use of add/remove/reset events. If it was, a
+      // reset event must be thrown, or this object's .resetCollection
+      // method must be invoked, or this will most likely fall out-of-sync
+
+      // why HashMap lookup when you can get it off the stack
+      var filter = this.collectionFilter;
+      var mapping = this._mapping;
+
+      // this is the option object to pass, it will be mutated on each
+      // iteration
+      var passthroughOption = _.extend({}, options);
       this.collection.each(function(model, index) {
-        if (this.collectionFilter(model, index)) {
-          filtered.push(model);
-          this._mapping.push(index);
+        var foundIndex = mapping.indexOf(index);
+        passthroughOption.index = foundIndex == -1 ? this.length : foundIndex;
+
+        if (filter(model, index)) {
+          // if already added, no touchy
+          if (foundIndex == -1) {
+            this._forcedAddModel(model, passthroughOption);
+          }
+        }
+        else {
+          if (foundIndex > -1) {
+            this._forceRemoveModel(model, passthroughOption);
+          }
         }
       }, this);
-      this.reset(filtered);
     }
   });
 })(_, Backbone);

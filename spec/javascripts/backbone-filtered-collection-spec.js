@@ -1,11 +1,5 @@
-function createLessthanFilter(lessThan) {
-  return function(model) {
-    return model.get('value') < lessThan;
-  }
-}
-
 describe("Backbone.FilteredCollection", function() {
-  var TehModel = Backbone.RelationalModel.extend({
+  var TehModel = Backbone.Model.extend({
     defaults: {value: -1}
   });
 
@@ -20,13 +14,19 @@ describe("Backbone.FilteredCollection", function() {
   var allModels;
   var collection;
 
+  var createLessthanFilter = function(lessThan) {
+    return function(model) {
+      return model.get('value') < lessThan;
+    }
+  };
+
   beforeEach(function() {
     allModels = new RegularModelCollection();
     for(var i = 0; i < 10; i++) {
-      allModels.add(new TehModel({value: i}));
+      allModels.add(new TehModel({id: i, value: i}));
     }
 
-    collection = new ModelCollection({collection: allModels});
+    collection = new ModelCollection(null, {collection: allModels});
   });
 
   describe("#setFilter", function() {
