@@ -20,7 +20,10 @@ these guys.
     var YourCollection = Backbone.Collection.extend({model: YourModel});
     var YourFilteredCollection = Backbone.FilteredCollection.extend({model: YourModel});
     var allItems = new YourCollection(...);
-    var filteredItems = new YourFilteredCollection({collection: allItems});
+    // note the null, backbone collections want the pre-populated model here
+    // we can't do that since this collection does not accept mutations, it
+    // only mutates as a proxy for the underlying collection
+    var filteredItems = new YourFilteredCollection(null, {collection: allItems});
     var filteredItems.setFilter(function(item) { return item.get('included') == true;});
 
 And now filteredItems contains only those items that pass the filter.
