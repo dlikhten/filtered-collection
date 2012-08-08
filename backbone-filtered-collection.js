@@ -43,6 +43,7 @@ SOFTWARE.
       this.collection.on("add",     this.addModel, this);
       this.collection.on("remove",  this.removeModel, this);
       this.collection.on("reset",   this.resetCollection, this);
+	  this.collection.on("change",  this._modelChanged, this);
     }
 
     ,_reset: function(options) {
@@ -61,6 +62,25 @@ SOFTWARE.
     ,reset: function() {
       throw "Do not invoke directly";
     }
+
+	,_modelChanged: function(model){
+		if (this.collectionFilter(model)){
+			// Model passed filter
+			
+			if (this.indexOf(model) < 0){
+				// Model not found, add it
+				
+				var index = this.collection.indexOf(model);
+				this._forceAddModel(model, {index:index});	
+			}
+		} else {
+			// Model did not pass filter
+			if (this.indexOf(model) > -1){
+				var index = this.collection.indexOf(model);
+				this._forceRemoveModel(model, {index:index});	
+			}
+		}
+	}
 
     ,resetCollection: function() {
       this._mapping = [];
@@ -83,11 +103,11 @@ SOFTWARE.
 
     ,addModel: function(model, collection, options) {
       if (this.collectionFilter(model)) {
-        this._forcedAddModel(model, options);
+        this._forceAddModel(model, options);
       }
     }
 
-    ,_forcedAddModel: function(model, options) {
+    ,_forceAddModel: function(model, options) {
       var desiredIndex = options.index;
       // determine where to add, look at mapping and find first object with the index
       // great than the one that we are given
@@ -124,7 +144,7 @@ SOFTWARE.
         if (filter(model, index)) {
           // if already added, no touchy
           if (foundIndex == -1) {
-            this._forcedAddModel(model, passthroughOption);
+            this._forceAddModel(model, passthroughOption);
           }
         }
         else {
