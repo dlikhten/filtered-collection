@@ -65,7 +65,7 @@ SOFTWARE.
 
     ,_modelChanged: function(model){
       if (this.collectionFilter(model)){
-        // Model passed filter		
+        // Model passed filter
         if (this.indexOf(model) < 0){
           // Model not found, add it
           var index = this.collection.indexOf(model);
@@ -74,8 +74,8 @@ SOFTWARE.
       } else {
         // Model did not pass filter
         if (this.indexOf(model) > -1){
-      	  var index = this.collection.indexOf(model);
-      	  this._forceRemoveModel(model, {index:index});
+          var index = this.collection.indexOf(model);
+          this._forceRemoveModel(model, {index:index});
         }
       }
     }
