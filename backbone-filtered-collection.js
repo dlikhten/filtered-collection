@@ -43,7 +43,7 @@ SOFTWARE.
       this.collection.on("add",     this.addModel, this);
       this.collection.on("remove",  this.removeModel, this);
       this.collection.on("reset",   this.resetCollection, this);
-	  this.collection.on("change",  this._modelChanged, this);
+      this.collection.on("change",  this._modelChanged, this);
     }
 
     ,_reset: function(options) {
@@ -63,24 +63,22 @@ SOFTWARE.
       throw "Do not invoke directly";
     }
 
-	,_modelChanged: function(model){
-		if (this.collectionFilter(model)){
-			// Model passed filter
-			
-			if (this.indexOf(model) < 0){
-				// Model not found, add it
-				
-				var index = this.collection.indexOf(model);
-				this._forceAddModel(model, {index:index});	
-			}
-		} else {
-			// Model did not pass filter
-			if (this.indexOf(model) > -1){
-				var index = this.collection.indexOf(model);
-				this._forceRemoveModel(model, {index:index});	
-			}
-		}
-	}
+    ,_modelChanged: function(model){
+      if (this.collectionFilter(model)){
+        // Model passed filter		
+        if (this.indexOf(model) < 0){
+          // Model not found, add it
+          var index = this.collection.indexOf(model);
+          this._forceAddModel(model, {index:index});
+        }
+      } else {
+        // Model did not pass filter
+        if (this.indexOf(model) > -1){
+      	  var index = this.collection.indexOf(model);
+      	  this._forceRemoveModel(model, {index:index});
+        }
+      }
+    }
 
     ,resetCollection: function() {
       this._mapping = [];
