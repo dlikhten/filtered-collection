@@ -124,7 +124,15 @@ describe("Backbone.FilteredCollection", function() {
       allModels.add(newModel, {at: 0});
 
       expect(count).toEqual(1);
+    });
 
+    it("should re-number elements propperly in the mapping according to what the actualy indices are in the original collection", function() {
+      collection.setFilter(createLessthanFilter(10));
+      expect(collection.length).toEqual(10);
+
+      allModels.add(new TehModel({value: 4}), {at: 6});
+
+      expect(collection._mapping).toEqual([0,1,2,3,4,5,6,7,8,9,10])
     });
   });
 
@@ -142,6 +150,15 @@ describe("Backbone.FilteredCollection", function() {
       allModels.remove(allModels.at(4));
       expect(collection.length).toEqual(4);
       expect(collection.at(collection.length - 1).get('value')).toEqual(3);
+    });
+
+    it("should re-number elements propperly in the mapping according to what the actualy indices are in the original collection", function() {
+      collection.setFilter(createLessthanFilter(10));
+      expect(collection.length).toEqual(10);
+
+      allModels.remove(allModels.at(4));
+
+      expect(collection._mapping).toEqual([0,1,2,3,4,5,6,7,8])
     });
   });
 

@@ -104,11 +104,24 @@ SOFTWARE.
       this.trigger("reset", this);
     }
 
+    // this is to synchronize where the element exists in the original model
+    // to our _mappings array
+    ,renumberMappings: function() {
+      this._mapping = []
+      var collection = this.collection;
+      var mapping = this._mapping;
+
+      _(this.models).each(function(model) {
+        mapping.push(collection.indexOf(model));
+      });
+    }
+
     ,removeModel: function(model, colleciton, options) {
       var at = this._mapping.indexOf(options.index);
       if (at > -1) {
         this._forceRemoveModel(model, _.extend({index: at}, options));
       }
+      this.renumberMappings();
     }
 
     // the options.index here is the index of the current model which we are removing
@@ -122,8 +135,9 @@ SOFTWARE.
 
     ,addModel: function(model, collection, options) {
       if (this.collectionFilter(model)) {
-        this._forceAddModel(model, options || {index: collection.indexOf(model)});
+        this._forceAddModel(model, _.extend(options || {}, {index: (options && options.at) || collection.indexOf(model)}));
       }
+      this.renumberMappings();
     }
 
     // the options.index here is the index of the original model which we are inserting
@@ -188,4 +202,3 @@ SOFTWARE.
     }
   });
 })(_, Backbone);
-
