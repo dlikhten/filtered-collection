@@ -109,6 +109,23 @@ describe("Backbone.FilteredCollection", function() {
       expect(collection.length).toEqual(6);
       expect(collection.at(0).get('value')).toEqual(4);
     });
+
+    it("should trigger an add event if the object was added", function() {
+      collection.setFilter(createLessthanFilter(5));
+      expect(collection.length).toEqual(5);
+
+      var newModel = new TehModel({value: 3});
+      count = 0;
+      collection.on("add", function(model, collection, options) {
+        expect(model).toEqual(newModel);
+        expect(options.index).toEqual(0);
+        count += 1;
+      });
+      allModels.add(newModel, {at: 0});
+
+      expect(count).toEqual(1);
+
+    });
   });
 
   describe("event:remove", function() {

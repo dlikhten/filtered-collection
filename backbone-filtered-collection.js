@@ -136,6 +136,9 @@ SOFTWARE.
       // add it there
       Backbone.Collection.prototype.add.call(this, model, {at: addToIndex, silent: options.silent});
       this._mapping.splice(addToIndex, 0, desiredIndex);
+      if (! options.silent) {
+        this.trigger("add", model, this, {index: addToIndex})
+      }
     }
 
     ,setFilter: function(newFilter, options) {
