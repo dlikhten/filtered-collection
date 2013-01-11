@@ -20,6 +20,13 @@ describe("Backbone.FilteredCollection", function() {
     }
   };
 
+  var oddFilter = function(model) {
+    return model.get("value") % 2 == 1;
+  }
+  var evenFilter = function(model) {
+    return model.get("value") % 2 == 0;
+  }
+
   beforeEach(function() {
     allModels = new RegularModelCollection();
     for(var i = 0; i < 10; i++) {
@@ -57,6 +64,25 @@ describe("Backbone.FilteredCollection", function() {
       expect(collection.length).toEqual(5);
       collection.setFilter(false); // filter reset
       expect(collection.length).toEqual(10);
+    });
+
+    it("should work correctly after filtering is changed constantly", function() {
+      collection.setFilter(createLessthanFilter(0));
+      expect(collection.models.length).toEqual(0);
+
+      collection.setFilter(createLessthanFilter(3));
+      expect(collection.models.length).toEqual(3);
+      expect(collection.models[0].get("value")).toEqual(0)
+      expect(collection.models[1].get("value")).toEqual(1)
+      expect(collection.models[2].get("value")).toEqual(2)
+
+      collection.setFilter(evenFilter);
+      expect(collection.models.length).toEqual(5);
+      expect(collection.models[0].get("value")).toEqual(0)
+      expect(collection.models[1].get("value")).toEqual(2)
+      expect(collection.models[2].get("value")).toEqual(4)
+      expect(collection.models[3].get("value")).toEqual(6)
+      expect(collection.models[4].get("value")).toEqual(8)
     });
   });
 

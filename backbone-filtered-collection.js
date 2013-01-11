@@ -73,19 +73,19 @@ SOFTWARE.
       throw "Do not invoke directly";
     }
 
-    ,_modelChanged: function(model){
+    ,_modelChanged: function(model, collection, options){
+      var ownIndexOfModel = this.indexOf(model);
       if (this.collectionFilter(model)){
         // Model passed filter
-        if (this.indexOf(model) < 0){
+        if (ownIndexOfModel < 0){
           // Model not found, add it
           var index = this.collection.indexOf(model);
-          this._forceAddModel(model, {index:index});
+          this._forceAddModel(model, {index: index});
         }
       } else {
         // Model did not pass filter
-        if (this.indexOf(model) > -1){
-          var index = this.collection.indexOf(model);
-          this._forceRemoveModel(model, {index:index});
+        if (ownIndexOfModel > -1){
+          this._forceRemoveModel(model, {index: ownIndexOfModel});
         }
       }
       this._filterComplete();
@@ -111,6 +111,7 @@ SOFTWARE.
       }
     }
 
+    // the options.index here is the index of the current model which we are removing
     ,_forceRemoveModel: function(model, options) {
       this._mapping.splice(options.index, 1);
       Backbone.Collection.prototype.remove.call(this, model, {silent: options.silent});
@@ -122,13 +123,12 @@ SOFTWARE.
       }
     }
 
+    // the options.index here is the index of the original model which we are inserting
     ,_forceAddModel: function(model, options) {
       var desiredIndex = options.index;
       // determine where to add, look at mapping and find first object with the index
       // great than the one that we are given
-      var addToIndex = _.sortedIndex(this._mapping, desiredIndex, function(origIndex) {
-        return origIndex;
-      });
+      var addToIndex = _.sortedIndex(this._mapping, desiredIndex, function(origIndex) { return origIndex; });
 
       // add it there
       Backbone.Collection.prototype.add.call(this, model, {at: addToIndex, silent: options.silent});
@@ -154,16 +154,17 @@ SOFTWARE.
       var passthroughOption = _.extend({}, options);
       this.collection.each(function(model, index) {
         var foundIndex = mapping.indexOf(index);
-        passthroughOption.index = foundIndex == -1 ? this.length : foundIndex;
 
         if (filter(model, index)) {
           // if already added, no touchy
           if (foundIndex == -1) {
+            passthroughOption.index = index
             this._forceAddModel(model, passthroughOption);
           }
         }
         else {
           if (foundIndex > -1) {
+            passthroughOption.index = foundIndex == -1 ? this.length : foundIndex;
             this._forceRemoveModel(model, passthroughOption);
           }
         }
