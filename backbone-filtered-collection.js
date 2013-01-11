@@ -115,6 +115,9 @@ SOFTWARE.
     ,_forceRemoveModel: function(model, options) {
       this._mapping.splice(options.index, 1);
       Backbone.Collection.prototype.remove.call(this, model, {silent: options.silent});
+      if (! options.silent) {
+        this.trigger("remove", model, this, {index: options.index})
+      }
     }
 
     ,addModel: function(model, collection, options) {

@@ -199,6 +199,82 @@ describe("Backbone.FilteredCollection", function() {
 
       expect(collection.models[0].get("value")).toEqual(1)
     });
+
+    it("should remove elements from the model as events occur", function() {
+      collection.setFilter(createLessthanFilter(10));
+
+      // start removing in weird orders, make sure vents are done properly
+      model = collection.models[0];
+      model.trigger("destroy", model, model.collection)
+      expect(collection.models[0].get("value")).toEqual(1)
+
+      model = collection.models[3];
+      model.trigger("destroy", model, model.collection)
+      expect(collection.models[3].get("value")).toEqual(5)
+
+      model = collection.models[3];
+      model.trigger("destroy", model, model.collection)
+      expect(collection.models[3].get("value")).toEqual(6)
+
+      model = collection.models[3];
+      model.trigger("destroy", model, model.collection)
+      expect(collection.models[3].get("value")).toEqual(7)
+
+      model = collection.models[2];
+      model.trigger("destroy", model, model.collection)
+      expect(collection.models[2].get("value")).toEqual(7)
+
+      model = collection.models[1];
+      model.trigger("destroy", model, model.collection)
+      expect(collection.models[1].get("value")).toEqual(7)
+    });
+
+    it("should create remove events for every deleted model", function() {
+      collection.setFilter(createLessthanFilter(10));
+      var lastModelRemoved = null;
+      var count = 0;
+      collection.on("remove", function(removedModel) {
+        lastModelRemoved = removedModel;
+        count += 1;
+      });
+
+      // start removing in weird orders, make sure vents are done properly
+      count = 0;
+      model = collection.models[0];
+      model.trigger("destroy", model, model.collection)
+      expect(lastModelRemoved).toEqual(model);
+      expect(count).toEqual(1);
+
+      count = 0;
+      model = collection.models[3];
+      model.trigger("destroy", model, model.collection)
+      expect(lastModelRemoved).toEqual(model);
+      expect(count).toEqual(1);
+
+      count = 0;
+      model = collection.models[3];
+      model.trigger("destroy", model, model.collection)
+      expect(lastModelRemoved).toEqual(model);
+      expect(count).toEqual(1);
+
+      count = 0;
+      model = collection.models[3];
+      model.trigger("destroy", model, model.collection)
+      expect(lastModelRemoved).toEqual(model);
+      expect(count).toEqual(1);
+
+      count = 0;
+      model = collection.models[2];
+      model.trigger("destroy", model, model.collection)
+      expect(lastModelRemoved).toEqual(model);
+      expect(count).toEqual(1);
+
+      count = 0;
+      model = collection.models[1];
+      model.trigger("destroy", model, model.collection)
+      expect(lastModelRemoved).toEqual(model);
+      expect(count).toEqual(1);
+    });
   });
 
   describe("model - event:change", function() {
