@@ -114,4 +114,15 @@ describe("Backbone.FilteredCollection", function() {
       expect(collection.at(4).get('value')).toEqual(14);
     });
   });
+
+  describe("model - event:delete", function() {
+    it("should just remove the model from the base collection like normal, and raise no problems with the filter", function() {
+      collection.setFilter(createLessthanFilter(5));
+      origModelZero = collection.models[0];
+      // simulate an ajax destroy
+      origModelZero.trigger("destroy", origModelZero, origModelZero.collection)
+
+      expect(collection.models[0].get("value")).toEqual(1)
+    });
+  });
 });

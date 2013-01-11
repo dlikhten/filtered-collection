@@ -152,5 +152,10 @@ SOFTWARE.
         }
       }, this);
     }
+
+    ,_onModelEvent: function(event, model, collection, options) {
+      // noop, this collection has no business dealing with events of the original model
+      // they will be handled by the original normal collection and bubble up to here
+    }
   });
 })(_, Backbone);
