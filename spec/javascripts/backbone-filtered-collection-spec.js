@@ -158,17 +158,6 @@ describe("Backbone.FilteredCollection", function() {
     });
   });
 
-  describe("model - event:delete", function() {
-    it("should just remove the model from the base collection like normal, and raise no problems with the filter", function() {
-      collection.setFilter(createLessthanFilter(5));
-      origModelZero = collection.models[0];
-      // simulate an ajax destroy
-      origModelZero.trigger("destroy", origModelZero, origModelZero.collection)
-
-      expect(collection.models[0].get("value")).toEqual(1)
-    });
-  });
-
   describe("event:filter-complete", function() {
     it("should fire when the underlying collection fires it (thus we're done filtering too)", function() {
       var filterFired = 0;
@@ -198,6 +187,46 @@ describe("Backbone.FilteredCollection", function() {
 
       collection.models[0].trigger("change", collection.models[0], allModels)
       expect(filterFired).toEqual(1);
+    });
+  });
+
+  describe("model - event:delete", function() {
+    it("should just remove the model from the base collection like normal, and raise no problems with the filter", function() {
+      collection.setFilter(createLessthanFilter(5));
+      origModelZero = collection.models[0];
+      // simulate an ajax destroy
+      origModelZero.trigger("destroy", origModelZero, origModelZero.collection)
+
+      expect(collection.models[0].get("value")).toEqual(1)
+    });
+  });
+
+  describe("model - event:change", function() {
+    it("should remove the model because it failed the filter post change", function() {
+      collection.setFilter(createLessthanFilter(5));
+      origModelZero = collection.models[0];
+      origModelZero.set("value", 10)
+
+      expect(collection.models.length).toEqual(4)
+      expect(collection.models[0].get("value")).toEqual(1)
+    });
+
+    it("should do nothing if the model is still passing the filter", function() {
+      collection.setFilter(createLessthanFilter(5));
+      origModelZero = collection.models[0];
+      origModelZero.set("value", 3)
+
+      expect(collection.models.length).toEqual(5)
+      expect(collection.models[0].get("value")).toEqual(3)
+    });
+
+    it("should add the model that is now passing the filter", function() {
+      collection.setFilter(createLessthanFilter(5));
+      origModelZero = allModels.models[9];
+      origModelZero.set("value", 2)
+
+      expect(collection.models.length).toEqual(6)
+      expect(collection.models[5].get("value")).toEqual(2)
     });
   });
 });
