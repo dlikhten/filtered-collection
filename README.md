@@ -39,3 +39,10 @@ must reset the filter by invoking:
 Same goes for remove and reset.
 
 To clear the filtering completely, pass the value false to setFilter.
+
+# Testing
+
+`gem install jasmine --no-ri --no-rdoc` then just run `rake jasmine:ci`
+it should be all set up and ready to run.
+
+I also included a .rvmrc file incase you have rvm installed.
