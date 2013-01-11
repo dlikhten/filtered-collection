@@ -108,7 +108,7 @@ SOFTWARE.
 
     ,addModel: function(model, collection, options) {
       if (this.collectionFilter(model)) {
-        this._forceAddModel(model, options);
+        this._forceAddModel(model, options || {index: collection.indexOf(model)});
       }
     }
 
