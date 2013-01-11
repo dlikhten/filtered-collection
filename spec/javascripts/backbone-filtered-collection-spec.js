@@ -142,4 +142,36 @@ describe("Backbone.FilteredCollection", function() {
       expect(collection.models[0].get("value")).toEqual(1)
     });
   });
+
+  describe("event:filter-complete", function() {
+    it("should fire when the underlying collection fires it (thus we're done filtering too)", function() {
+      var filterFired = 0;
+      collection.on("filter-complete", function() {
+        filterFired += 1;
+      });
+      allModels.trigger("filter-complete");
+      expect(filterFired).toEqual(1);
+    });
+
+    it("should fire once only at the end of a filter", function() {
+      var filterFired = 0;
+      collection.on("filter-complete", function() {
+        filterFired += 1;
+      });
+      collection.setFilter(createLessthanFilter(3));
+      expect(filterFired).toEqual(1);
+    });
+
+    it("should fire once when a change is propagated from an underlying model", function() {
+      var filterFired = 0;
+      collection.on("filter-complete", function() {
+        filterFired += 1;
+      });
+      collection.setFilter(createLessthanFilter(3));
+      filterFired = 0;
+
+      collection.models[0].trigger("change", collection.models[0], allModels)
+      expect(filterFired).toEqual(1);
+    });
+  });
 });

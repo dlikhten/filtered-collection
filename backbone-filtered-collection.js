@@ -30,6 +30,14 @@ SOFTWARE.
    *
    * do not modify this collection directly via #add/#remove, modify the
    * underlying origModel.
+   *
+   * Events:
+   *   add - something was added (via filter or trickling from underlying collection)
+   *   remove - something was removed (via filter or trickling from underlying collection)
+   *   reset - the whole thing was reset
+   *   sort - same as reset, but via sort
+   *   filter-complete - filtering is complete -- very useful if you want to trigger a re-draw
+   *                                              of the whole collection
    */
   Backbone.FilteredCollection = Backbone.Collection.extend({
     collectionFilter: null
@@ -45,6 +53,7 @@ SOFTWARE.
       this.collection.on("reset",   this.resetCollection, this);
       this.collection.on("sort",    this.resortCollection, this);
       this.collection.on("change",  this._modelChanged, this);
+      this.collection.on("filter-complete", this._filterComplete, this);
     }
 
     ,_reset: function(options) {
@@ -79,6 +88,7 @@ SOFTWARE.
           this._forceRemoveModel(model, {index:index});
         }
       }
+      this._filterComplete();
     }
 
     ,resortCollection: function() {
@@ -158,11 +168,17 @@ SOFTWARE.
           }
         }
       }, this);
+      this._filterComplete();
     }
 
     ,_onModelEvent: function(event, model, collection, options) {
       // noop, this collection has no business dealing with events of the original model
       // they will be handled by the original normal collection and bubble up to here
     }
+
+    ,_filterComplete: function() {
+      this.trigger("filter-complete", this);
+    }
   });
 })(_, Backbone);
+
