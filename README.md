@@ -46,3 +46,11 @@ To clear the filtering completely, pass the value false to setFilter.
 it should be all set up and ready to run.
 
 I also included a .rvmrc file incase you have rvm installed.
+
+# Contributing
+
+Please, do not contribute without a spec. Being tested is critically important 
+to this project, as it's a framework level component, and so it's failure 
+will be damn hard to detect.
+
+Also, no tab characters, 2 spaces only. Minifiers can handle this stuff for you.
