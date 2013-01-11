@@ -43,6 +43,7 @@ SOFTWARE.
       this.collection.on("add",     this.addModel, this);
       this.collection.on("remove",  this.removeModel, this);
       this.collection.on("reset",   this.resetCollection, this);
+      this.collection.on("sort",    this.resortCollection, this);
       this.collection.on("change",  this._modelChanged, this);
     }
 
@@ -80,6 +81,12 @@ SOFTWARE.
       }
     }
 
+    ,resortCollection: function() {
+      this._mapping = [];
+      this._reset();
+      this.setFilter(undefined, {silent: true});
+      this.trigger("sort", this);
+    }
     ,resetCollection: function() {
       this._mapping = [];
       this._reset();

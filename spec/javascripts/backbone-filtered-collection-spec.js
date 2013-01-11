@@ -115,6 +115,23 @@ describe("Backbone.FilteredCollection", function() {
     });
   });
 
+  describe("event:sort", function() {
+    it("should continue filtering the collection, except with a new order", function() {
+      collection.setFilter(createLessthanFilter(5));
+      allModels.comparator = function(v1, v2) {
+        return v2.get("value") - v1.get("value");
+      };
+      allModels.sort();
+
+      expect(collection.length).toEqual(5);
+      expect(collection.at(0).get('value')).toEqual(4);
+      expect(collection.at(1).get('value')).toEqual(3);
+      expect(collection.at(2).get('value')).toEqual(2);
+      expect(collection.at(3).get('value')).toEqual(1);
+      expect(collection.at(4).get('value')).toEqual(0);
+    });
+  });
+
   describe("model - event:delete", function() {
     it("should just remove the model from the base collection like normal, and raise no problems with the filter", function() {
       collection.setFilter(createLessthanFilter(5));
