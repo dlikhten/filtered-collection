@@ -74,6 +74,8 @@ SOFTWARE.
     }
 
     ,_modelChanged: function(model, collection, options){
+      options || (options = {});
+
       var ownIndexOfModel = this.indexOf(model);
       if (this.collectionFilter(model)){
         // Model passed filter
@@ -88,7 +90,9 @@ SOFTWARE.
           this._forceRemoveModel(model, {index: ownIndexOfModel});
         }
       }
-      this._filterComplete();
+      if (! options.silent) {
+        this._filterComplete();
+      }
     }
 
     ,resortCollection: function() {
@@ -156,9 +160,9 @@ SOFTWARE.
     }
 
     ,setFilter: function(newFilter, options) {
+      options || (options = {});
       if (newFilter === false) { newFilter = this.defaultFilter } // false = clear out filter
       this.collectionFilter = newFilter || this.collectionFilter || this.defaultFilter;
-      options || (options = {});
 
       // this assumes that the original collection was unmodified
       // without the use of add/remove/reset events. If it was, a
@@ -189,7 +193,9 @@ SOFTWARE.
           }
         }
       }, this);
-      this._filterComplete();
+      if (! options.silent) {
+        this._filterComplete();
+      }
     }
 
     ,_onModelEvent: function(event, model, collection, options) {

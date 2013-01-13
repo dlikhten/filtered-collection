@@ -84,6 +84,17 @@ describe("Backbone.FilteredCollection", function() {
       expect(collection.models[3].get("value")).toEqual(6)
       expect(collection.models[4].get("value")).toEqual(8)
     });
+
+    it("should not trigger a filter-complete event if options.silent is true", function() {
+      count = 0;
+      collection.on("filter-complete", function() {
+        count += 1;
+      });
+
+      collection.setFilter(createLessthanFilter(0), {silent: true});
+
+      expect(count).toEqual(0);
+    });
   });
 
   describe("event:add", function() {
@@ -224,7 +235,7 @@ describe("Backbone.FilteredCollection", function() {
     });
   });
 
-  describe("model - event:delete", function() {
+  describe("model - event:destroy", function() {
     it("should just remove the model from the base collection like normal, and raise no problems with the filter", function() {
       collection.setFilter(createLessthanFilter(5));
       origModelZero = collection.models[0];
