@@ -11,10 +11,9 @@
 #   - dist/**/*.js
 #
 src_files:
-    - underscore.js
-    - backbone.js
-    - backbone-filtered-collection.js
-    - public/javascripts/**/*.js
+  - '__spec__/dependencies/underscore.js'
+  - '__spec__/dependencies/backbone.js'
+  - 'vendor/assets/javascripts/**/*.js'
 
 # stylesheets
 #

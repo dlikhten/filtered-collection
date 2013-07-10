@@ -42,15 +42,15 @@ To clear the filtering completely, pass the value false to setFilter.
 
 # Testing
 
-`gem install jasmine --no-ri --no-rdoc` then just run `rake jasmine:ci`
-it should be all set up and ready to run.
+    bundle install
+    rake jasmine
 
 I also included a .rvmrc file incase you have rvm installed.
 
 # Contributing
 
 Please, do not contribute without a spec. Being tested is critically important 
-to this project, as it's a framework level component, and so it's failure 
+to this project, as it's a framework level component, and so its failure 
 will be damn hard to detect.
 
 Also, no tab characters, 2 spaces only. Minifiers can handle this stuff for you.
