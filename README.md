@@ -19,7 +19,7 @@ these guys.
 
 With bundler
 
-    gem 'backbone-filtered-collection', git: "git://github.com/dlikhten/filtered-collection.git"
+    gem 'backbone-filtered-collection'
 
 Inside your sprockets file:
 
