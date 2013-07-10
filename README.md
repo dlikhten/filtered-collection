@@ -15,6 +15,16 @@ extentions, not to mention making normal operaitons potentially slower.
 So the intention is to compose a filter chain pattern using
 these guys.
 
+# Installation to rails
+
+With bundler
+
+    gem 'backbone-filtered-collection', git: "git://github.com/dlikhten/filtered-collection.git"
+
+Inside your sprockets file:
+
+    //= require backbone-filtered-collection
+
 # Usage
 
     var YourCollection = Backbone.Collection.extend({model: YourModel});
