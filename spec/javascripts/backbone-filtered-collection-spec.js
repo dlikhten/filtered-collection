@@ -332,6 +332,32 @@ describe("Backbone.FilteredCollection", function() {
       expect(collection.models[0].get("value")).toEqual(1)
     });
 
+    it("should trigger change event if the model is altered", function () {
+      origModelZero = collection.models[0];
+      var triggered = false;
+
+      collection.on("change", function (model) {
+        triggered = true;
+      });
+
+      origModelZero.set("value", 10);
+
+      expect(triggered).toEqual(true)
+    });
+
+    it("should pass the changed model to the handler", function () {
+      origModelZero = collection.models[0];
+      var changedValue = null;
+
+      collection.on("change", function (model) {
+        changedValue = model.get('value');
+      });
+
+      origModelZero.set("value", 10);
+
+      expect(changedValue).toEqual(10);
+    });
+
     it("should do nothing if the model is still passing the filter", function() {
       collection.setFilter(createLessthanFilter(5));
       origModelZero = collection.models[0];

@@ -94,6 +94,7 @@ THE SOFTWARE.
         }
       }
       if (! options.silent) {
+        this.trigger('change', model);
         this._filterComplete();
       }
     }

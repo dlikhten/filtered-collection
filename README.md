@@ -71,6 +71,7 @@ The collection will create events much like a regular collection. There are a fe
  - `remove`: An object was removed from the collection (via filter OR via orig collection)
  - `reset`: The original collection was reset, filtering happened
  - `sort`: Same as reset, but via sort
+ - `change`: An object in the collection was changed.
  - `filter-complete`: Filtering was completed. If you are not listening to add/remove then just listen to filter-complete and reset your views.
 
 # Testing
