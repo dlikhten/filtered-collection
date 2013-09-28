@@ -1,5 +1,7 @@
 # Filtered Collection
 
+[![Build Status](https://travis-ci.org/dlikhten/filtered-collection.png?branch=master)](https://travis-ci.org/dlikhten/filtered-collection)
+
 This is a simple filtered collection implemented using
 Backbone.Collection. The goal here is to create a collection which,
 given a filter function, will just contain elements of the original
