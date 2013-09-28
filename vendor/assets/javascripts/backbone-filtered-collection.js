@@ -51,11 +51,11 @@ THE SOFTWARE.
       this.collection = data.collection;
       this.setFilter(data.collectionFilter);
 
-      this.collection.on("add",     this.addModel, this);
-      this.collection.on("remove",  this.removeModel, this);
-      this.collection.on("reset",   this.resetCollection, this);
-      this.collection.on("sort",    this.resortCollection, this);
-      this.collection.on("change",  this._modelChanged, this);
+      this.collection.on("add",             this.addModel, this);
+      this.collection.on("remove",          this.removeModel, this);
+      this.collection.on("reset",           this.resetCollection, this);
+      this.collection.on("sort",            this.resortCollection, this);
+      this.collection.on("change",          this._modelChanged, this);
       this.collection.on("filter-complete", this._filterComplete, this);
     }
 
@@ -99,11 +99,22 @@ THE SOFTWARE.
     }
 
     ,resortCollection: function() {
-      this._mapping = [];
-      this._reset();
-      this.setFilter(undefined, {silent: true});
+      // note: we don't need to do any filter work since sort
+      // implies nothing changed, only order
+      var newModels = [];
+      var newMapping = [];
+      var models = this.models;
+      _.each(this.collection.models, function(model, index) {
+        if (models.indexOf(model) >= 0) {
+          newModels.push(model);
+          newMapping.push(index);
+        }
+      });
+      this.models = newModels;
+      this._mapping = newMapping;
       this.trigger("sort", this);
     }
+
     ,resetCollection: function() {
       this._mapping = [];
       this._reset();
