@@ -7,10 +7,6 @@ describe("Backbone.FilteredCollection", function() {
     model: TehModel
   });
 
-  var ModelCollection = Backbone.FilteredCollection.extend({
-    model: TehModel
-  });
-
   var allModels;
   var collection;
 
@@ -33,7 +29,11 @@ describe("Backbone.FilteredCollection", function() {
       allModels.add(new TehModel({id: i, value: i}));
     }
 
-    collection = new ModelCollection(null, {collection: allModels});
+    collection = new Backbone.FilteredCollection(null, {collection: allModels});
+  });
+
+  afterEach(function() {
+    if (collection) collection.off(null, null, null);
   });
 
   describe("#setFilter", function() {
@@ -323,57 +323,60 @@ describe("Backbone.FilteredCollection", function() {
   });
 
   describe("model - event:change", function() {
-    it("should remove the model because it failed the filter post change", function() {
+    var changeSpy, addSpy, removeSpy;
+
+    beforeEach(function() {
+      changeSpy = jasmine.createSpy("change listener");
+      addSpy = jasmine.createSpy("add listener");
+      removeSpy = jasmine.createSpy("remove listener");
+    });
+
+    it("should remove the model because it failed the filter post change, triggers remove event", function() {
       collection.setFilter(createLessthanFilter(5));
+      collection.on("change", changeSpy);
+      collection.on("add", addSpy);
+      collection.on("remove", removeSpy);
+
       origModelZero = collection.models[0];
       origModelZero.set("value", 10)
 
       expect(collection.models.length).toEqual(4)
       expect(collection.models[0].get("value")).toEqual(1)
+      expect(changeSpy).not.toHaveBeenCalled();
+      expect(addSpy).not.toHaveBeenCalled();
+      expect(removeSpy).toHaveBeenCalledWith(origModelZero, collection, jasmine.any(Object));
     });
 
-    it("should trigger change event if the model is altered", function () {
-      origModelZero = collection.models[0];
-      var triggered = false;
-
-      collection.on("change", function (model) {
-        triggered = true;
-      });
-
-      origModelZero.set("value", 10);
-
-      expect(triggered).toEqual(true)
-    });
-
-    it("should pass the changed model to the handler", function () {
-      origModelZero = collection.models[0];
-      var changedValue = null;
-
-      collection.on("change", function (model) {
-        changedValue = model.get('value');
-      });
-
-      origModelZero.set("value", 10);
-
-      expect(changedValue).toEqual(10);
-    });
-
-    it("should do nothing if the model is still passing the filter", function() {
+    it("does not alter the collection if the model is still passing, triggers change event", function() {
       collection.setFilter(createLessthanFilter(5));
+      collection.on("change", changeSpy);
+      collection.on("add", addSpy);
+      collection.on("remove", removeSpy);
+
       origModelZero = collection.models[0];
       origModelZero.set("value", 3)
 
       expect(collection.models.length).toEqual(5)
       expect(collection.models[0].get("value")).toEqual(3)
+      expect(changeSpy).toHaveBeenCalledWith(origModelZero, collection);
+      expect(addSpy).not.toHaveBeenCalled();
+      expect(removeSpy).not.toHaveBeenCalled();
     });
 
-    it("should add the model that is now passing the filter", function() {
+    it("should add the model that is now passing the filter, triggers add event", function() {
       collection.setFilter(createLessthanFilter(5));
+      collection.on("change", changeSpy);
+      collection.on("add", addSpy);
+      collection.on("remove", removeSpy);
+
       origModelZero = allModels.models[9];
       origModelZero.set("value", 2)
 
       expect(collection.models.length).toEqual(6)
       expect(collection.models[5].get("value")).toEqual(2)
+      expect(changeSpy).not.toHaveBeenCalled();
+      expect(addSpy).toHaveBeenCalledWith(origModelZero, collection, jasmine.any(Object));
+      expect(removeSpy).not.toHaveBeenCalled();
     });
   });
 });

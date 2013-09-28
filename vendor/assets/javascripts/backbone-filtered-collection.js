@@ -87,6 +87,11 @@ THE SOFTWARE.
           var index = this.collection.indexOf(model);
           this._forceAddModel(model, {index: index});
         }
+        // the model passes the filter and is already in the collection
+        // therefore we want to indicate that the model has changed
+        else {
+          this.trigger("change", model, this);
+        }
       } else {
         // Model did not pass filter
         if (ownIndexOfModel > -1){
@@ -94,7 +99,6 @@ THE SOFTWARE.
         }
       }
       if (! options.silent) {
-        this.trigger('change', model);
         this._filterComplete();
       }
     }
