@@ -35,12 +35,12 @@ Download the [source][1], minify as you see fit by your minification strategy.
     var YourFilteredCollection = Backbone.FilteredCollection.extend({model: YourModel});
 
     var allItems = new YourCollection(...);
-    
+
     // note the null, backbone collections want the pre-populated model here
     // we can't do that since this collection does not accept mutations, it
     // only mutates as a proxy for the underlying collection
     var filteredItems = new YourFilteredCollection(null, {collection: allItems});
-    
+
     var filteredItems.setFilter(function(item) { return item.get('included') == true;});
 
 And now filteredItems contains only those items that pass the filter.
@@ -70,8 +70,8 @@ The collection will create events much like a regular collection. There are a fe
  - `add`: An object was added to the collection (via filter OR via orig collection)
  - `remove`: An object was removed from the collection (via filter OR via orig collection)
  - `reset`: The original collection was reset, filtering happened
- - `sort`: Same as reset, but via sort
- - `change`: An object in the collection was changed.
+ - `sort`: The collection was sorted. No changes in models represented.
+ - `change`: An object in the collection was changed. The object was already accepted by the filter, and is still.
  - `filter-complete`: Filtering was completed. If you are not listening to add/remove then just listen to filter-complete and reset your views.
 
 # Testing
@@ -83,8 +83,8 @@ I also included a .rvmrc file incase you have rvm installed.
 
 # Contributing
 
-Please, do not contribute without a spec. Being tested is critically important 
-to this project, as it's a framework level component, and so its failure 
+Please, do not contribute without a spec. Being tested is critically important
+to this project, as it's a framework level component, and so its failure
 will be damn hard to detect.
 
 Also, no tab characters, 2 spaces only. Minifiers can handle this stuff for you.
