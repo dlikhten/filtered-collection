@@ -79,8 +79,21 @@ THE SOFTWARE.
     Replace the current collection with a new one reusing the same instance.
 
     @param {Backbone.Collection} newCollection - New collection to be wrapped
-
     @method
+    @chainable
+
+    @example
+        var a = new Backbone.Collection(),
+          b = new Backbone.Collection(),
+          filtered = new Backbone.FilteredCollection({
+            collection: a
+          });
+
+        // do something with the filtered collection
+
+        filtered.resetWith(b);
+
+        // continue using the collection b instead of a as datasource
     **/
     ,resetWith: function(newCollection) {
       // Stop listening the old collection
@@ -93,6 +106,8 @@ THE SOFTWARE.
       this.setFilter();
       // Bind all the events on the new collection
       this._bindEvents();
+
+      return this;
     }
 
     /**
