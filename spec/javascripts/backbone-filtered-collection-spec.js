@@ -383,9 +383,12 @@ describe("Backbone.FilteredCollection", function() {
   describe("#resetWith", function() {
     var originalCollection,
       newCollection,
-      filteredCollection;
+      filteredCollection,
+      eventSpy;
 
     beforeEach(function(){
+      eventSpy = jasmine.createSpy('event listener');
+
       originalCollection = new Backbone.Collection([{
           id: 1, value: 1, deleted: false
         }, {
@@ -443,6 +446,31 @@ describe("Backbone.FilteredCollection", function() {
       }));
 
       expect(filteredCollection.length).toEqual(0);
+    });
+
+    it("should keep change event working", function() {
+      filteredCollection.resetWith(newCollection);
+
+      newCollection.get(3).set('deleted', true);
+
+      expect(filteredCollection.length).toEqual(0);
+    });
+
+    it("should ignore the old collection events", function() {
+      // Change the original with a new one
+      filteredCollection.resetWith(newCollection);
+
+      // Listen all the events on the filtered collection
+      filteredCollection.on('all', function() {
+        eventSpy('Ouch');
+      });
+
+      // Make changes to the original collection
+      originalCollection.add(new Backbone.Model({id: 4, deleted: false}));
+      originalCollection.remove(new Backbone.Model({id: 3}));
+      originalCollection.get(1).set('deleted', true);
+
+      expect(eventSpy).not.toHaveBeenCalled();
     });
   });
 });
