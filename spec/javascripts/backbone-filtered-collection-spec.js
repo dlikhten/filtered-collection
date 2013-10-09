@@ -379,4 +379,120 @@ describe("Backbone.FilteredCollection", function() {
       expect(removeSpy).not.toHaveBeenCalled();
     });
   });
+
+  describe("#resetWith", function() {
+    var originalCollection,
+      newCollection,
+      filteredCollection,
+      eventSpy;
+
+    beforeEach(function(){
+      eventSpy = jasmine.createSpy('event listener');
+
+      originalCollection = new Backbone.Collection([{
+          id: 1, value: 1, deleted: false
+        }, {
+          id: 2, value: 2, deleted: false
+        }, {
+          id: 3, value: 3, deleted: true
+        }]);
+
+      newCollection = new Backbone.Collection([{
+          id: 1, value: 1, deleted: true
+        }, {
+          id: 2, value: 2, deleted: true
+        }, {
+          id: 3, value: 3, deleted: false
+        }]);
+
+      filteredCollection = new Backbone.FilteredCollection(null, {
+        collection: originalCollection,
+        collectionFilter: function(item) {
+          return !item.get('deleted')
+        }
+      });
+    });
+
+    it("should reset the current instance with a new collection and update the length with the correct value", function() {
+      var l1 = filteredCollection.length;
+
+      filteredCollection.resetWith(newCollection);
+
+      var l2 = filteredCollection.length;
+
+      expect(l1).toEqual(2);
+      expect(l2).toEqual(1);
+    });
+
+    it("should keep the add working", function() {
+      filteredCollection.resetWith(newCollection);
+
+      var lengthBeforeAdd = filteredCollection.length;
+
+      newCollection.add(new Backbone.Model({
+        id: 4, value: 4, deleted: false
+      }));
+
+      var lengthAfterAdd = filteredCollection.length;
+
+      expect(lengthBeforeAdd + 1).toEqual(lengthAfterAdd);
+    });
+
+    it("should keep the remove working", function() {
+      filteredCollection.resetWith(newCollection);
+
+      newCollection.remove(new Backbone.Model({
+        id: 3
+      }));
+
+      expect(filteredCollection.length).toEqual(0);
+    });
+
+    it("should keep change event working", function() {
+      filteredCollection.resetWith(newCollection);
+
+      newCollection.get(3).set('deleted', true);
+
+      expect(filteredCollection.length).toEqual(0);
+    });
+
+    it("should ignore the old collection events", function() {
+      // Change the original with a new one
+      filteredCollection.resetWith(newCollection);
+
+      // Listen all the events on the filtered collection
+      filteredCollection.on('all', function() {
+        eventSpy('Ouch');
+      });
+
+      // Make changes to the original collection
+      originalCollection.add(new Backbone.Model({id: 4, deleted: false}));
+      originalCollection.remove(new Backbone.Model({id: 3}));
+      originalCollection.get(1).set('deleted', true);
+
+      expect(eventSpy).not.toHaveBeenCalled();
+    });
+
+    it("should fire a reset with the new filtered data", function() {
+      var expectedFilteredCollection = new Backbone.FilteredCollection(null, {
+        collection: newCollection,
+        collectionFilter: function(item) {
+          return !item.get('deleted')
+        }
+      }),
+      filteredCollectionAfterCallResetWith = null;
+
+      filteredCollection.on('reset', function(collection) {
+        filteredCollectionAfterCallResetWith = collection;
+      });
+
+      filteredCollection.resetWith(newCollection);
+
+      expect(_.difference(
+        expectedFilteredCollection.pluck('id'),
+        filteredCollectionAfterCallResetWith.pluck('id')
+      )).toEqual([]);
+    });
+
+  });
 });

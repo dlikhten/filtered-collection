@@ -46,17 +46,65 @@ THE SOFTWARE.
     collectionFilter: null
     ,defaultFilter: defaultFilter
 
+    /**
+    Default initializer.
+
+    @param {Boolean} [models=false] - By default we must to use a falsy value here.
+    @param {Object}  data           - Options.
+        @param {Backbone.Collection} data.collection       - Collection to be filtered
+        @param {Function}            data.collectionFilter - Filter to be applied to the collection.
+
+    @constructor
+    **/
     ,initialize: function(models, data) {
       if (models) throw "models cannot be set directly, unfortunately first argument is the models.";
-      this.collection = data.collection;
-      this.setFilter(data.collectionFilter);
 
-      this.collection.on("add",             this.addModel, this);
-      this.collection.on("remove",          this.removeModel, this);
-      this.collection.on("reset",           this.resetCollection, this);
-      this.collection.on("sort",            this.resortCollection, this);
-      this.collection.on("change",          this._modelChanged, this);
-      this.collection.on("filter-complete", this._filterComplete, this);
+      this.setCollection(data.collection);
+      this.setFilter(data.collectionFilter);
+      this._bindEvents();
+    }
+
+    /**
+    Collection setter.
+
+    @param {Backbone.Collection} c - Collection to be wrapped
+
+    @method
+    **/
+    ,setCollection: function(c) {
+      this.collection = c;
+    }
+
+    /**
+    Replace the current collection with a new one reusing the same instance.
+
+    @param {Backbone.Collection} newCollection - New collection to be wrapped
+    @method
+    @chainable
+    **/
+    ,resetWith: function(newCollection) {
+      this.stopListening();
+      this.setCollection(newCollection);
+      this.resetCollection();
+      this._bindEvents();
+
+      return this;
+    }
+
+    /**
+    Register listeners to the current collection.
+
+    @see Backbone.Event.stopListening
+
+    @method
+    **/
+    ,_bindEvents: function () {
+      this.listenTo(this.collection, "add", this.addModel);
+      this.listenTo(this.collection, "remove", this.removeModel);
+      this.listenTo(this.collection, "reset", this.resetCollection);
+      this.listenTo(this.collection, "sort", this.resortCollection);
+      this.listenTo(this.collection, "change", this._modelChanged);
+      this.listenTo(this.collection, "filter-complete", this._filterComplete);
     }
 
     ,_reset: function(options) {
