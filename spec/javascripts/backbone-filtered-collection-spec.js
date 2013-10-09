@@ -472,5 +472,27 @@ describe("Backbone.FilteredCollection", function() {
 
       expect(eventSpy).not.toHaveBeenCalled();
     });
+
+    it("should fire a reset with the new filtered data", function() {
+      var expectedFilteredCollection = new Backbone.FilteredCollection(null, {
+        collection: newCollection,
+        collectionFilter: function(item) {
+          return !item.get('deleted')
+        }
+      }),
+      filteredCollectionAfterCallResetWith = null;
+
+      filteredCollection.on('reset', function(collection) {
+        filteredCollectionAfterCallResetWith = collection;
+      });
+
+      filteredCollection.resetWith(newCollection);
+
+      expect(_.difference(
+        expectedFilteredCollection.pluck('id'),
+        filteredCollectionAfterCallResetWith.pluck('id')
+      )).toEqual([]);
+    });
+
   });
 });

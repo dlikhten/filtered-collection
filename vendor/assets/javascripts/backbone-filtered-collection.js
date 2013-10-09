@@ -81,30 +81,11 @@ THE SOFTWARE.
     @param {Backbone.Collection} newCollection - New collection to be wrapped
     @method
     @chainable
-
-    @example
-        var a = new Backbone.Collection(),
-          b = new Backbone.Collection(),
-          filtered = new Backbone.FilteredCollection({
-            collection: a
-          });
-
-        // do something with the filtered collection
-
-        filtered.resetWith(b);
-
-        // continue using the collection b instead of a as datasource
     **/
     ,resetWith: function(newCollection) {
-      // Stop listening the old collection
       this.stopListening();
-      // Reset the current state to "empty"
-      this._reset();
-      // Update the collection with the new one
       this.setCollection(newCollection);
-      // Fires the filtering
-      this.setFilter();
-      // Bind all the events on the new collection
+      this.resetCollection();
       this._bindEvents();
 
       return this;
