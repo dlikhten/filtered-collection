@@ -381,118 +381,87 @@ describe("Backbone.FilteredCollection", function() {
   });
 
   describe("#resetWith", function() {
-    var originalCollection,
-      newCollection,
-      filteredCollection,
-      eventSpy;
+    var moreModels;
 
     beforeEach(function(){
-      eventSpy = jasmine.createSpy('event listener');
-
-      originalCollection = new Backbone.Collection([{
-          id: 1, value: 1, deleted: false
-        }, {
-          id: 2, value: 2, deleted: false
-        }, {
-          id: 3, value: 3, deleted: true
-        }]);
-
-      newCollection = new Backbone.Collection([{
-          id: 1, value: 1, deleted: true
-        }, {
-          id: 2, value: 2, deleted: true
-        }, {
-          id: 3, value: 3, deleted: false
-        }]);
-
-      filteredCollection = new Backbone.FilteredCollection(null, {
-        collection: originalCollection,
-        collectionFilter: function(item) {
-          return !item.get('deleted')
-        }
-      });
+      moreModels = new RegularModelCollection();
+      for(var i = 10; i < 16; i++) {
+        moreModels.add(new TehModel({id: i, value: i}));
+      }
+      collection.setFilter(evenFilter);
     });
 
-    it("should reset the current instance with a new collection and update the length with the correct value", function() {
-      var l1 = filteredCollection.length;
+    it("updates the collection's length to match that of the new collection", function() {
+      var lengthBefore = collection.length;
+      collection.resetWith(moreModels);
+      var lengthAfter = collection.length;
 
-      filteredCollection.resetWith(newCollection);
-
-      var l2 = filteredCollection.length;
-
-      expect(l1).toEqual(2);
-      expect(l2).toEqual(1);
+      expect(lengthBefore).toEqual(5); // even models
+      expect(lengthAfter).toEqual(3); // even models
     });
 
-    it("should keep the add working", function() {
-      filteredCollection.resetWith(newCollection);
+    it("handles add events on the new collection", function() {
+      collection.resetWith(moreModels);
 
-      var lengthBeforeAdd = filteredCollection.length;
+      var lengthBefore = collection.length;
+      newModel = new TehModel({id: 16, value: 16});
+      moreModels.add(newModel);
+      var lengthAfter = collection.length;
 
-      newCollection.add(new Backbone.Model({
-        id: 4, value: 4, deleted: false
-      }));
-
-      var lengthAfterAdd = filteredCollection.length;
-
-      expect(lengthBeforeAdd + 1).toEqual(lengthAfterAdd);
+      expect(lengthAfter).toEqual(lengthBefore + 1);
+      expect(collection.indexOf(newModel)).toBeGreaterThan(-1);
     });
 
-    it("should keep the remove working", function() {
-      filteredCollection.resetWith(newCollection);
+    it("handles remove events on the new collection", function() {
+      collection.resetWith(moreModels);
 
-      newCollection.remove(new Backbone.Model({
-        id: 3
-      }));
+      var lengthBefore = collection.length;
+      var toRemove = moreModels.get(12);
+      moreModels.remove(toRemove);
+      var lengthAfter = collection.length;
 
-      expect(filteredCollection.length).toEqual(0);
+      expect(lengthAfter).toEqual(lengthBefore - 1);
+      expect(collection.indexOf(toRemove)).toEqual(-1)
     });
 
-    it("should keep change event working", function() {
-      filteredCollection.resetWith(newCollection);
+    it("handles change events on the new collection", function() {
+      collection.resetWith(moreModels);
 
-      newCollection.get(3).set('deleted', true);
+      var lengthBefore = collection.length;
+      var changeModel = moreModels.get(10);
+      changeModel.set('value', 11);
+      var lengthAfter = collection.length;
 
-      expect(filteredCollection.length).toEqual(0);
+      expect(lengthAfter).toEqual(lengthBefore - 1);
+      expect(collection.indexOf(changeModel)).toEqual(-1);
     });
 
-    it("should ignore the old collection events", function() {
-      // Change the original with a new one
-      filteredCollection.resetWith(newCollection);
+    it("ignores the old collection events", function() {
+      var eventSpy = jasmine.createSpy('all event listener');
 
-      // Listen all the events on the filtered collection
-      filteredCollection.on('all', function() {
-        eventSpy('Ouch');
-      });
+      collection.resetWith(moreModels);
 
-      // Make changes to the original collection
-      originalCollection.add(new Backbone.Model({id: 4, deleted: false}));
-      originalCollection.remove(new Backbone.Model({id: 3}));
-      originalCollection.get(1).set('deleted', true);
+      collection.on('all', eventSpy);
+
+      allModels.add(new TehModel({id: 16, value: 16}));
+      allModels.remove(allModels.models[0]);
+      allModels.get(2).set("value", "3");
+      allModels.comparator = function(a, b) { return 0 };
+      allModels.sort();
+      allModels.reset([{value: 5}]);
 
       expect(eventSpy).not.toHaveBeenCalled();
     });
 
-    it("should fire a reset with the new filtered data", function() {
-      var expectedFilteredCollection = new Backbone.FilteredCollection(null, {
-        collection: newCollection,
-        collectionFilter: function(item) {
-          return !item.get('deleted')
-        }
-      }),
-      filteredCollectionAfterCallResetWith = null;
+    it("fire a reset with the new filtered data, exactly once", function() {
+      var eventSpy = jasmine.createSpy('reset event listener');
 
-      filteredCollection.on('reset', function(collection) {
-        filteredCollectionAfterCallResetWith = collection;
-      });
+      collection.on('reset', eventSpy);
 
-      filteredCollection.resetWith(newCollection);
+      collection.resetWith(moreModels);
 
-      expect(_.difference(
-        expectedFilteredCollection.pluck('id'),
-        filteredCollectionAfterCallResetWith.pluck('id')
-      )).toEqual([]);
+      expect(eventSpy).toHaveBeenCalledWith(collection);
+      expect(eventSpy.callCount).toEqual(1);
     });
-
   });
 });

@@ -59,45 +59,24 @@ THE SOFTWARE.
     ,initialize: function(models, data) {
       if (models) throw "models cannot be set directly, unfortunately first argument is the models.";
 
-      this.setCollection(data.collection);
+      this.collection = data.collection;
       this.setFilter(data.collectionFilter);
       this._bindEvents();
     }
 
     /**
-    Collection setter.
-
-    @param {Backbone.Collection} c - Collection to be wrapped
-
-    @method
-    **/
-    ,setCollection: function(c) {
-      this.collection = c;
-    }
-
-    /**
-    Replace the current collection with a new one reusing the same instance.
-
-    @param {Backbone.Collection} newCollection - New collection to be wrapped
-    @method
-    @chainable
-    **/
+     * Replace the current underlying collection with a new one.
+     * note: only a reset event will be fired.
+     */
     ,resetWith: function(newCollection) {
-      this.stopListening();
-      this.setCollection(newCollection);
+      this.stopListening(this.collection);
+      this.collection = newCollection;
       this.resetCollection();
       this._bindEvents();
 
       return this;
     }
 
-    /**
-    Register listeners to the current collection.
-
-    @see Backbone.Event.stopListening
-
-    @method
-    **/
     ,_bindEvents: function () {
       this.listenTo(this.collection, "add", this.addModel);
       this.listenTo(this.collection, "remove", this.removeModel);
