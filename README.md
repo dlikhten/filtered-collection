@@ -76,6 +76,11 @@ The collection will create events much like a regular collection. There are a fe
  - `change`: An object in the collection was changed. The object was already accepted by the filter, and is still.
  - `filter-complete`: Filtering was completed. If you are not listening to add/remove then just listen to filter-complete and reset your views.
 
+## Change Collection
+
+You can change the underlying collection if you really need to by invoking `#resetWith(newCollection)`, only one `reset`
+event will be triggered with the new data.
+
 # Testing
 
     bundle install
