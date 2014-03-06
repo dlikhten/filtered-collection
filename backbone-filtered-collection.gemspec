@@ -20,5 +20,5 @@ Gem::Specification.new do |gem|
   gem.add_dependency "railties", ">= 3.0", "< 5.0"
 
   gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'jasmine'
+  gem.add_development_dependency 'jasmine', '< 2.0'
 end
