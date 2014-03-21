@@ -377,6 +377,37 @@ describe("Backbone.FilteredCollection", function() {
       expect(addSpy).toHaveBeenCalledWith(origModelZero, collection, jasmine.any(Object));
       expect(removeSpy).not.toHaveBeenCalled();
     });
+
+    it("property change events are fired on filtered collection", function() {
+      var collection         = new Backbone.Collection([ {id: 1, difficulty: 1}, {id: 2, difficulty: 2}, {id: 3, difficulty: 1}, {id: 4, difficulty: 3} ]);
+      var filteredCollection = new Backbone.FilteredCollection(null, {collection: collection});
+      filteredCollection.setFilter(function(d) { return (d.get('difficulty') === 1) });
+
+      var changeCount = 0;
+      var newModel = new Backbone.Model({id: 5, difficulty: 1});
+      collection.add(newModel);
+
+      filteredCollection.on("change:blah", function() { changeCount  = changeCount + 1; });
+      filteredCollection.on("change:blubb", function() { changeCount  = changeCount + 1; });
+      newModel.set({"blah": "blah"});
+
+      expect(changeCount).toEqual(1);
+    });
+
+    it("property change events are not fired if it does not fit filter", function() {
+      var collection         = new Backbone.Collection([ {id: 1, difficulty: 1}, {id: 2, difficulty: 2}, {id: 3, difficulty: 1}, {id: 4, difficulty: 3} ]);
+      var filteredCollection = new Backbone.FilteredCollection(null, {collection: collection});
+      filteredCollection.setFilter(function(d) { return (d.get('difficulty') === 1) });
+
+      var changeCount = 0;
+      var newModel = new Backbone.Model({id: 5, difficulty: 1});
+      collection.add(newModel);
+
+      filteredCollection.on("change:difficulty", function() { changeCount  = changeCount + 1; });
+      newModel.set("difficulty", 2);
+
+      expect(changeCount).toEqual(0);
+    });
   });
 
   describe("#resetWith", function() {

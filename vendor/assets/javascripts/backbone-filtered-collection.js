@@ -107,6 +107,7 @@ THE SOFTWARE.
       options || (options = {});
 
       var ownIndexOfModel = this.indexOf(model);
+      var self = this;
       if (this.collectionFilter(model)){
         // Model passed filter
         if (ownIndexOfModel < 0){
@@ -117,6 +118,10 @@ THE SOFTWARE.
         // the model passes the filter and is already in the collection
         // therefore we want to indicate that the model has changed
         else {
+          _.each(_.keys(model.changed), function(key) {
+            self.trigger("change:" + key, model, model.changed[key], options);
+          });
+
           this.trigger("change", model, this);
         }
       } else {
